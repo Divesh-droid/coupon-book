@@ -115,6 +115,8 @@
       cursor: pointer;
       transition: transform 0.2s, box-shadow .2s;
       box-shadow:0 8px 20px rgba(0,0,0,.06);
+      position: relative; /* for sparkles */
+      overflow:hidden;    /* keep sparkles inside */
     }
     .coupon:hover{ transform: translateY(-2px) scale(1.02); box-shadow:0 12px 30px rgba(0,0,0,.08); }
     .redeemed{
@@ -123,7 +125,31 @@
     .controls{ margin:8px 0 20px; }
     .btn{ margin: 8px; padding:10px 18px; border:none; border-radius:12px; background:var(--pink); color:#fff; font-size:16px; cursor:pointer; }
     .btn.secondary{ background:#888 }
+    .btn.small{ font-size:14px; padding:8px 12px; }
     .bday-msg{ font-size:1.1rem; color:var(--pink); font-weight:bold; }
+
+    /* Sparkle bits (created via JS) */
+    .sparkle{ position:absolute; pointer-events:none; font-size:16px; opacity:1; transform:translate(-50%,-50%) scale(1); animation: sparkleFade .8s ease-out forwards; }
+    @keyframes sparkleFade{ to{ transform:translate(-50%,-80%) scale(0.8); opacity:0; } }
+
+    /* Confetti canvas */
+    .confetti-canvas{ position:fixed; inset:0; z-index:999; pointer-events:none; }
+
+    /* Countdown box */
+    #countdownBox{ width:min(92%,720px); margin: 6px auto 18px; background:#fff; border:2px dashed var(--pink); border-radius:16px; padding:14px; box-shadow:0 8px 20px rgba(0,0,0,.06); }
+    #countdownLabel{ color:#7b5b5b; font-size:.95rem; }
+    #countdownTimer{ font-weight:bold; font-size:1.1rem; margin-top:6px; }
+
+    /* Secret heart button */
+    #secretHeart{ position:fixed; bottom:14px; right:14px; z-index:20; background:transparent; border:none; font-size:28px; opacity:.15; cursor:pointer; transition:transform .15s ease, opacity .2s; }
+    #secretHeart:hover{ opacity:.6; transform:scale(1.1); }
+
+    /* Tiny note */
+    .tiny-note{ color:#7b5b5b; font-size:.95rem; margin: 18px 0 8px; }
+
+    /* Toast */
+    .toast{ position:fixed; top:16px; left:50%; transform:translateX(-50%); background:#fff; border:2px dashed var(--pink); color:var(--ink); padding:10px 14px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.1); z-index:1000; animation:toastPop .25s ease-out; }
+    @keyframes toastPop{ from{ transform:translate(-50%,-6px); opacity:0 } to{ transform:translate(-50%,0); opacity:1 } }
   </style>
 </head>
 <body>
@@ -168,6 +194,13 @@
       <img src="pic3.jpg" alt="Us 3">
     </div>
 
+    <!-- Countdown widget (settable) -->
+    <div id="countdownBox">
+      <div id="countdownLabel">⏳ Countdown to our next special day:</div>
+      <div id="countdownTimer">(not set yet)</div>
+      <button id="setCountdownBtn" class="btn secondary small" style="margin-top:8px">Set Countdown</button>
+    </div>
+
     <!-- ——— ALL YOUR COUPONS (unchanged) ——— -->
     <div class="coupon" data-id="1">🤗 Hug you for a long time without rushing</div>
     <div class="coupon" data-id="2">🎀 Put your hair in pigtails</div>
@@ -208,7 +241,13 @@
     <div class="coupon" data-id="37">🎸 Learn guitar and sing songs for you</div>
     <div class="coupon" data-id="38">🧵 Sew clothes for you</div>
     <div class="coupon" data-id="39">🌱 Grow a garden with you</div>
+
+    <!-- Tiny personal note -->
+    <p class="tiny-note">P.S. I love you more than HTML can handle ❤️</p>
   </main>
+
+  <!-- Secret heart (hidden-ish) -->
+  <button id="secretHeart" title="hi :)" aria-label="secret">💗</button>
 
   <script>
     // Floating background hearts for the cover
@@ -249,12 +288,73 @@
     // continuous while cover is visible
     let balloonTimer = setInterval(spawnHearts, 1400);
 
-    // Coupon redeem + persistence
+    // --- Sparkle on coupon hover ---
+    function attachSparklesToCoupon(el){
+      let last = 0;
+      el.addEventListener('mousemove', (e)=>{
+        const now = performance.now();
+        if(now - last < 50) return; // throttle
+        last = now;
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+        const s = document.createElement('span');
+        s.className='sparkle';
+        s.textContent = ['✦','✧','✨','❇︎'][Math.floor(Math.random()*4)];
+        s.style.left = x+'px'; s.style.top=y+'px';
+        el.appendChild(s);
+        setTimeout(()=> s.remove(), 800);
+      });
+      // touch sparkle
+      el.addEventListener('touchstart', (e)=>{
+        const rect = el.getBoundingClientRect();
+        const t = e.touches[0];
+        const x = t.clientX - rect.left; const y = t.clientY - rect.top;
+        const s = document.createElement('span');
+        s.className='sparkle'; s.textContent='✨'; s.style.left=x+'px'; s.style.top=y+'px';
+        el.appendChild(s); setTimeout(()=> s.remove(), 800);
+      }, {passive:true});
+    }
+    function attachSparklesToAll(){ document.querySelectorAll('.coupon').forEach(attachSparklesToCoupon); }
+
+    // --- Confetti burst ---
+    function launchConfetti(duration=2500){
+      const cnv = document.createElement('canvas');
+      cnv.className = 'confetti-canvas';
+      document.body.appendChild(cnv);
+      const ctx = cnv.getContext('2d');
+      let W,H; const dpr = Math.max(1, window.devicePixelRatio || 1);
+      function resize(){ W = cnv.width = innerWidth * dpr; H = cnv.height = innerHeight * dpr; cnv.style.width = innerWidth+'px'; cnv.style.height = innerHeight+'px'; }
+      resize(); window.addEventListener('resize', resize);
+      const colors = ['#ff4d6d','#ff6b8a','#ffd1dc','#ffe6f0','#ff8fb0'];
+      const N = 140; const parts = [];
+      for(let i=0;i<N;i++){
+        parts.push({
+          x: Math.random()*W, y: -20*dpr*Math.random(),
+          vx: (Math.random()-0.5)*0.6*dpr, vy: (1+Math.random()*1.5)*dpr,
+          size: (4+Math.random()*7)*dpr, color: colors[i%colors.length], rot: Math.random()*Math.PI
+        });
+      }
+      let start = performance.now();
+      (function frame(t){
+        const elapsed = t - start; ctx.clearRect(0,0,W,H);
+        parts.forEach(p=>{ p.x += p.vx*4; p.y += p.vy*4; p.rot += 0.05; });
+        parts.forEach(p=>{ ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); });
+        if(elapsed < duration){ requestAnimationFrame(frame); } else { document.body.removeChild(cnv); window.removeEventListener('resize', resize); }
+      })(start);
+    }
+
+    // --- Coupon redeem + persistence ---
     const STORAGE_KEY = 'couponBook.redeemed.v1';
     let redeemedIds = [];
     function loadState(){
       try{ redeemedIds = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch{ redeemedIds=[]; }
       redeemedIds.forEach(id=>markRedeemedById(id));
+      // secret
+      if(localStorage.getItem('couponBook.secretUnlocked')==='true'){ unlockSecretCoupon(false); }
+      // countdown
+      initCountdown();
+      // sparkles
+      attachSparklesToAll();
     }
     function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(redeemedIds)); }
     function markRedeemedById(id){
@@ -263,7 +363,7 @@
       if(!el.classList.contains('redeemed')){
         el.classList.add('redeemed');
         if(!/^✅ Redeemed! /.test(el.innerHTML)){
-          el.innerHTML = '✅ Redeemed! '+ el.innerHTML.replace(/^✅ Redeemed!\s*/, '');
+          el.innerHTML = '✅ Redeemed! '+ el.innerHTML.replace(/^✅ Redeemed!\\s*/, '');
         }
       }
     }
@@ -282,11 +382,11 @@
       redeemedIds = []; saveState();
       document.querySelectorAll('.coupon').forEach(el=>{
         el.classList.remove('redeemed');
-        el.innerHTML = el.innerHTML.replace(/^✅ Redeemed!\s*/, '');
+        el.innerHTML = el.innerHTML.replace(/^✅ Redeemed!\\s*/, '');
       });
     }
 
-    // YouTube: require click to create the iframe and autoplay
+    // --- YouTube: require click to create the iframe and autoplay ---
     function playMusic(){
       const holder = document.getElementById('yt-holder');
       if(document.getElementById('yt-iframe')) return; // already created
@@ -300,7 +400,63 @@
       document.getElementById('musicBtn').disabled=true;
     }
 
-    // Cover open → reveal content + start music + stop constant balloons
+    // --- Countdown logic ---
+    function initCountdown(){
+      const display = document.getElementById('countdownTimer');
+      let target = localStorage.getItem('couponBook.countdownTarget');
+      if(!target){
+        // default: 14 days from now
+        const d = new Date(Date.now() + 14*24*60*60*1000);
+        target = d.toISOString();
+        localStorage.setItem('couponBook.countdownTarget', target);
+      }
+      let targetTime = new Date(target).getTime();
+      function render(){
+        const now = Date.now();
+        let diff = Math.max(0, targetTime - now);
+        const d = Math.floor(diff/86400000); diff%=86400000;
+        const h = Math.floor(diff/3600000); diff%=3600000;
+        const m = Math.floor(diff/60000); diff%=60000;
+        const s = Math.floor(diff/1000);
+        display.textContent = `${d}d ${h}h ${m}m ${s}s`;
+      }
+      render();
+      clearInterval(window.__countdownTimer);
+      window.__countdownTimer = setInterval(render, 1000);
+      // set button
+      document.getElementById('setCountdownBtn').onclick = ()=>{
+        const current = new Date(localStorage.getItem('couponBook.countdownTarget')||target);
+        const input = prompt('Enter your next special day (YYYY-MM-DD or YYYY-MM-DD HH:MM)', current.toISOString().slice(0,16).replace('T',' '));
+        if(!input) return;
+        const parsed = new Date(input.replace(' ', 'T'));
+        if(isNaN(parsed)) { toast('Could not read that date 😅'); return; }
+        localStorage.setItem('couponBook.countdownTarget', parsed.toISOString());
+        targetTime = parsed.getTime(); render(); toast('Countdown updated ✨');
+      }
+    }
+
+    // --- Secret extra coupon unlock ---
+    function unlockSecretCoupon(showToast=true){
+      if(document.querySelector('.coupon[data-id="secret"]')) return;
+      const c = document.createElement('div');
+      c.className = 'coupon';
+      c.setAttribute('data-id','secret');
+      c.textContent = '🧸 Secret extra: One wish of your choice (within reason 😘)';
+      document.querySelector('main.wrap')?.appendChild(c) || document.getElementById('content').appendChild(c);
+      attachSparklesToCoupon(c);
+      localStorage.setItem('couponBook.secretUnlocked','true');
+      if(showToast) toast('Secret coupon unlocked! 💖');
+      launchConfetti(1800);
+    }
+    document.getElementById('secretHeart').addEventListener('click', unlockSecretCoupon);
+
+    // --- Tiny toast helper ---
+    function toast(msg){
+      const t = document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
+      setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 1800);
+    }
+
+    // Cover open → reveal content + start music + stop constant balloons + confetti burst
     document.getElementById('openBtn').addEventListener('click', ()=>{
       document.getElementById('cover').classList.add('fade-out');
       setTimeout(()=>{
@@ -310,6 +466,7 @@
       }, 600);
       if(balloonTimer){ clearInterval(balloonTimer); balloonTimer = null; }
       playMusic();
+      launchConfetti();
     });
 
     document.getElementById('musicBtn').addEventListener('click', playMusic);
