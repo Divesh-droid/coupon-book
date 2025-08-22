@@ -33,8 +33,14 @@
       box-shadow:0 20px 60px rgba(255,77,109,.25);
       border:3px dashed var(--pink);
     }
-    .cover-title{ font-size: clamp(1.6rem, 4vw, 2.4rem); line-height:1.1; }
-    .cover-sub{ font-size: clamp(1rem, 2.5vw, 1.2rem); color:#7b5b5b; }
+    .cover-title{
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      line-height:1.1;
+    }
+    .cover-sub{
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color:#7b5b5b;
+    }
     .start-btn{
       appearance:none; border:none; cursor:pointer; margin-top:18px;
       padding:14px 26px; border-radius:16px; font-size:1rem;
@@ -44,64 +50,22 @@
     .start-btn:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(255,77,109,.45); }
     .tiny{ display:block; margin-top:8px; font-size:.85rem; color:#7b5b5b }
 
-    /* Floating hearts background */
+    /* Floating hearts */
     .heart{ position:absolute; width:22px; height:22px; transform:rotate(45deg); opacity:.9; }
     .heart:before,.heart:after{ content:""; position:absolute; width:22px; height:22px; background:var(--pink); border-radius:50%; }
     .heart:before{ left:-11px; }
     .heart:after{ top:-11px; }
+    .h1{ background:var(--pink);} .h2{ background:#ff6b8a;} .h3{ background:#ff8fb0;}
     .heart, .heart:before, .heart:after{ background:currentColor; }
     .heart{ color:#ff6b8a; }
-    @keyframes floatUp{
-      0%{ transform:translateY(20px) scale(.8) rotate(45deg); opacity:0; }
-      10%{opacity:1}
-      100%{ transform:translateY(-120vh) scale(1.2) rotate(45deg); opacity:0; }
-    }
+    @keyframes floatUp{ 0%{ transform:translateY(20px) scale(.8) rotate(45deg); opacity:0; }
+                         10%{opacity:1}
+                         100%{ transform:translateY(-120vh) scale(1.2) rotate(45deg); opacity:0; } }
     .heart{ animation: floatUp linear infinite; }
 
     /* fade out on open */
     .fade-out{ animation: fadeOut .6s ease forwards; }
     @keyframes fadeOut{ to{ opacity:0; visibility:hidden; } }
-
-    /* --- BIRTHDAY SPECIAL BLURRED WORD --- */
-    .bday-special{
-      font-size: 1.4rem;
-      color: var(--pink);
-      font-weight: bold;
-      margin: 1rem 0;
-    }
-    .blurred{
-      filter: blur(6px);
-      cursor: pointer;
-      position: relative;
-      transition: filter 0.3s ease;
-      display: inline-block;
-    }
-    .blurred:hover,
-    .blurred:active { filter: blur(0); }
-    .blurred .float-heart{
-      position:absolute;
-      font-size:1.2rem;
-      animation: rise 2.5s linear forwards;
-      opacity:0;
-      left:0; top:0;
-    }
-    @keyframes rise{
-      0% { transform: translateY(0) scale(0.8); opacity:1; }
-      80%{opacity:1;}
-      100% { transform: translateY(-120px) scale(1.2); opacity:0; }
-    }
-
-    /* --- IMAGE STRIP --- */
-    .image-strip{
-      display:flex; justify-content:center; gap:16px; margin:20px auto; flex-wrap:wrap;
-    }
-    .image-strip img{
-      width:180px; height:180px; object-fit:cover;
-      border-radius:20px;
-      box-shadow:0 8px 20px rgba(0,0,0,.1);
-      transition: transform 0.3s;
-    }
-    .image-strip img:hover{ transform:scale(1.05); }
 
     /* --- MAIN CONTENT --- */
     .wrap{ padding:24px; }
@@ -115,8 +79,6 @@
       cursor: pointer;
       transition: transform 0.2s, box-shadow .2s;
       box-shadow:0 8px 20px rgba(0,0,0,.06);
-      position: relative; /* for sparkles */
-      overflow:hidden;    /* keep sparkles inside */
     }
     .coupon:hover{ transform: translateY(-2px) scale(1.02); box-shadow:0 12px 30px rgba(0,0,0,.08); }
     .redeemed{
@@ -125,31 +87,21 @@
     .controls{ margin:8px 0 20px; }
     .btn{ margin: 8px; padding:10px 18px; border:none; border-radius:12px; background:var(--pink); color:#fff; font-size:16px; cursor:pointer; }
     .btn.secondary{ background:#888 }
-    .btn.small{ font-size:14px; padding:8px 12px; }
-    .bday-msg{ font-size:1.1rem; color:var(--pink); font-weight:bold; }
 
-    /* Sparkle bits (created via JS) */
-    .sparkle{ position:absolute; pointer-events:none; font-size:16px; opacity:1; transform:translate(-50%,-50%) scale(1); animation: sparkleFade .8s ease-out forwards; }
-    @keyframes sparkleFade{ to{ transform:translate(-50%,-80%) scale(0.8); opacity:0; } }
+    /* Countdown styles */
+    #countdown { font-size:1.1rem; margin:10px 0; color:var(--pink); font-weight:bold; }
 
-    /* Confetti canvas */
-    .confetti-canvas{ position:fixed; inset:0; z-index:999; pointer-events:none; }
+    /* Blurred word */
+    .blurred { filter: blur(6px); cursor:pointer; transition:filter .3s ease; }
+    .blurred:hover { filter: blur(0); }
 
-    /* Countdown box */
-    #countdownBox{ width:min(92%,720px); margin: 6px auto 18px; background:#fff; border:2px dashed var(--pink); border-radius:16px; padding:14px; box-shadow:0 8px 20px rgba(0,0,0,.06); }
-    #countdownLabel{ color:#7b5b5b; font-size:.95rem; }
-    #countdownTimer{ font-weight:bold; font-size:1.1rem; margin-top:6px; }
-
-    /* Secret heart button */
-    #secretHeart{ position:fixed; bottom:14px; right:14px; z-index:20; background:transparent; border:none; font-size:28px; opacity:.15; cursor:pointer; transition:transform .15s ease, opacity .2s; }
-    #secretHeart:hover{ opacity:.6; transform:scale(1.1); }
-
-    /* Tiny note */
-    .tiny-note{ color:#7b5b5b; font-size:.95rem; margin: 18px 0 8px; }
-
-    /* Toast */
-    .toast{ position:fixed; top:16px; left:50%; transform:translateX(-50%); background:#fff; border:2px dashed var(--pink); color:var(--ink); padding:10px 14px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.1); z-index:1000; animation:toastPop .25s ease-out; }
-    @keyframes toastPop{ from{ transform:translate(-50%,-6px); opacity:0 } to{ transform:translate(-50%,0); opacity:1 } }
+    /* Floating birthday text */
+    .floating-text { position:absolute; font-size:1.2rem; animation: floatText 10s linear infinite; left:50%; transform:translateX(-50%); white-space:nowrap; }
+    @keyframes floatText {
+      0% { bottom:-40px; opacity:0; }
+      10% { opacity:1; }
+      100% { bottom:110%; opacity:0; }
+    }
   </style>
 </head>
 <body>
@@ -159,49 +111,30 @@
       <div style="font-size:42px;">💌💖</div>
       <h1 class="cover-title">A Little Coupon Book<br/>made just for you</h1>
       <p class="cover-sub">Open to start our song and see your surprises ✨</p>
-
-      <!-- Special birthday message on cover -->
-      <p class="bday-special">
-        🎉 hAppY BiRTH dAy Smartie Big
-        <span class="blurred" id="blurWord">tiTTie</span> 🎉
-      </p>
-
+      <div class="floating-text">🎂 hAppY BiRTH dAy Smartie <span class="blurred">Big tiTTie</span> 🎂</div>
+      <div id="coverCountdown" style="margin-top:10px; font-weight:bold; color:var(--pink);">Countdown: —</div>
       <button class="start-btn" id="openBtn">💝 Open Coupon Book</button>
       <span class="tiny">(music plays after you press the button)</span>
 
-      <!-- floating hearts background -->
+      <!-- floating hearts (generated by JS for variety) -->
       <div id="hearts"></div>
     </div>
   </section>
 
   <main id="content" class="wrap" style="display:none">
     <h1>🎁 Coupon Book 🎁</h1>
-    <p class="bday-msg">🎂 Happy Birthday, my love! 🎂</p>
     <p>For my amazing girlfriend 💕</p>
+    <div id="countdown">Countdown: —</div>
 
     <div class="controls">
       <button class="btn" id="musicBtn">▶️ Play Our Song</button>
       <button class="btn secondary" id="resetBtn">↺ Reset Coupons</button>
     </div>
 
-    <!-- Off-screen YouTube player (created on click) -->
+    <!-- Off-screen container for the YouTube player (created on click) -->
     <div id="yt-holder" style="position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden"></div>
 
-    <!-- 🎀 THREE IMAGES ABOVE COUPONS 🎀 -->
-    <div class="image-strip">
-      <img src="pic1.jpg" alt="Us 1">
-      <img src="pic2.jpg" alt="Us 2">
-      <img src="pic3.jpg" alt="Us 3">
-    </div>
-
-    <!-- Countdown widget (settable) -->
-    <div id="countdownBox">
-      <div id="countdownLabel">⏳ Countdown to our next special day:</div>
-      <div id="countdownTimer">(not set yet)</div>
-      <button id="setCountdownBtn" class="btn secondary small" style="margin-top:8px">Set Countdown</button>
-    </div>
-
-    <!-- ——— ALL YOUR COUPONS (unchanged) ——— -->
+    <!-- Coupons loaded from your list -->
     <div class="coupon" data-id="1">🤗 Hug you for a long time without rushing</div>
     <div class="coupon" data-id="2">🎀 Put your hair in pigtails</div>
     <div class="coupon" data-id="3">🪮 Wanna sit on your lap and brush your hair</div>
@@ -241,16 +174,10 @@
     <div class="coupon" data-id="37">🎸 Learn guitar and sing songs for you</div>
     <div class="coupon" data-id="38">🧵 Sew clothes for you</div>
     <div class="coupon" data-id="39">🌱 Grow a garden with you</div>
-
-    <!-- Tiny personal note -->
-    <p class="tiny-note">P.S. I love you more than HTML can handle ❤️</p>
   </main>
 
-  <!-- Secret heart (hidden-ish) -->
-  <button id="secretHeart" title="hi :)" aria-label="secret">💗</button>
-
   <script>
-    // Floating background hearts for the cover
+    // Generate floating hearts on the cover
     (function makeHearts(){
       const container = document.getElementById('hearts');
       const colors = ['#ff4d6d','#ff6b8a','#ff8fb0','#ffa6c2'];
@@ -268,93 +195,13 @@
       }
     })();
 
-    // Balloon hearts that rise CONSTANTLY over the blurred word on the cover
-    const blurWord = document.getElementById('blurWord');
-    function spawnHearts(){
-      for(let i=0;i<4;i++){
-        const heart=document.createElement('span');
-        heart.className='float-heart';
-        heart.textContent='🎈'; // balloon vibe
-        heart.style.left=(Math.random()*30-15)+'px';
-        heart.style.top='0';
-        heart.style.animationDelay=(i*0.15)+'s';
-        blurWord.appendChild(heart);
-        setTimeout(()=>heart.remove(),2500);
-      }
-    }
-    // spawn on hover/click too
-    blurWord.addEventListener('mouseenter', spawnHearts);
-    blurWord.addEventListener('click', spawnHearts);
-    // continuous while cover is visible
-    let balloonTimer = setInterval(spawnHearts, 1400);
-
-    // --- Sparkle on coupon hover ---
-    function attachSparklesToCoupon(el){
-      let last = 0;
-      el.addEventListener('mousemove', (e)=>{
-        const now = performance.now();
-        if(now - last < 50) return; // throttle
-        last = now;
-        const rect = el.getBoundingClientRect();
-        const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-        const s = document.createElement('span');
-        s.className='sparkle';
-        s.textContent = ['✦','✧','✨','❇︎'][Math.floor(Math.random()*4)];
-        s.style.left = x+'px'; s.style.top=y+'px';
-        el.appendChild(s);
-        setTimeout(()=> s.remove(), 800);
-      });
-      // touch sparkle
-      el.addEventListener('touchstart', (e)=>{
-        const rect = el.getBoundingClientRect();
-        const t = e.touches[0];
-        const x = t.clientX - rect.left; const y = t.clientY - rect.top;
-        const s = document.createElement('span');
-        s.className='sparkle'; s.textContent='✨'; s.style.left=x+'px'; s.style.top=y+'px';
-        el.appendChild(s); setTimeout(()=> s.remove(), 800);
-      }, {passive:true});
-    }
-    function attachSparklesToAll(){ document.querySelectorAll('.coupon').forEach(attachSparklesToCoupon); }
-
-    // --- Confetti burst ---
-    function launchConfetti(duration=2500){
-      const cnv = document.createElement('canvas');
-      cnv.className = 'confetti-canvas';
-      document.body.appendChild(cnv);
-      const ctx = cnv.getContext('2d');
-      let W,H; const dpr = Math.max(1, window.devicePixelRatio || 1);
-      function resize(){ W = cnv.width = innerWidth * dpr; H = cnv.height = innerHeight * dpr; cnv.style.width = innerWidth+'px'; cnv.style.height = innerHeight+'px'; }
-      resize(); window.addEventListener('resize', resize);
-      const colors = ['#ff4d6d','#ff6b8a','#ffd1dc','#ffe6f0','#ff8fb0'];
-      const N = 140; const parts = [];
-      for(let i=0;i<N;i++){
-        parts.push({
-          x: Math.random()*W, y: -20*dpr*Math.random(),
-          vx: (Math.random()-0.5)*0.6*dpr, vy: (1+Math.random()*1.5)*dpr,
-          size: (4+Math.random()*7)*dpr, color: colors[i%colors.length], rot: Math.random()*Math.PI
-        });
-      }
-      let start = performance.now();
-      (function frame(t){
-        const elapsed = t - start; ctx.clearRect(0,0,W,H);
-        parts.forEach(p=>{ p.x += p.vx*4; p.y += p.vy*4; p.rot += 0.05; });
-        parts.forEach(p=>{ ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); });
-        if(elapsed < duration){ requestAnimationFrame(frame); } else { document.body.removeChild(cnv); window.removeEventListener('resize', resize); }
-      })(start);
-    }
-
-    // --- Coupon redeem + persistence ---
+    // Coupon redeem + persistence
     const STORAGE_KEY = 'couponBook.redeemed.v1';
     let redeemedIds = [];
+
     function loadState(){
       try{ redeemedIds = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch{ redeemedIds=[]; }
       redeemedIds.forEach(id=>markRedeemedById(id));
-      // secret
-      if(localStorage.getItem('couponBook.secretUnlocked')==='true'){ unlockSecretCoupon(false); }
-      // countdown
-      initCountdown();
-      // sparkles
-      attachSparklesToAll();
     }
     function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(redeemedIds)); }
     function markRedeemedById(id){
@@ -362,11 +209,10 @@
       if(!el) return;
       if(!el.classList.contains('redeemed')){
         el.classList.add('redeemed');
-        if(!/^✅ Redeemed! /.test(el.innerHTML)){
-          el.innerHTML = '✅ Redeemed! '+ el.innerHTML.replace(/^✅ Redeemed!\\s*/, '');
-        }
+        if(!/^✅ Redeemed! /.test(el.innerHTML)) el.innerHTML = '✅ Redeemed! '+ el.innerHTML.replace(/^✅ Redeemed!\\s*/, '');
       }
     }
+
     document.addEventListener('click', (e)=>{
       const c = e.target.closest('.coupon');
       if(!c) return;
@@ -377,6 +223,7 @@
         if(!redeemedIds.includes(id)){ redeemedIds.push(id); saveState(); }
       }
     });
+
     function resetCoupons(){
       if(!confirm('Reset all coupons on this device?')) return;
       redeemedIds = []; saveState();
@@ -386,7 +233,7 @@
       });
     }
 
-    // --- YouTube: require click to create the iframe and autoplay ---
+    // YouTube: require click to create the iframe and autoplay
     function playMusic(){
       const holder = document.getElementById('yt-holder');
       if(document.getElementById('yt-iframe')) return; // already created
@@ -400,63 +247,7 @@
       document.getElementById('musicBtn').disabled=true;
     }
 
-    // --- Countdown logic ---
-    function initCountdown(){
-      const display = document.getElementById('countdownTimer');
-      let target = localStorage.getItem('couponBook.countdownTarget');
-      if(!target){
-        // default: 14 days from now
-        const d = new Date(Date.now() + 14*24*60*60*1000);
-        target = d.toISOString();
-        localStorage.setItem('couponBook.countdownTarget', target);
-      }
-      let targetTime = new Date(target).getTime();
-      function render(){
-        const now = Date.now();
-        let diff = Math.max(0, targetTime - now);
-        const d = Math.floor(diff/86400000); diff%=86400000;
-        const h = Math.floor(diff/3600000); diff%=3600000;
-        const m = Math.floor(diff/60000); diff%=60000;
-        const s = Math.floor(diff/1000);
-        display.textContent = `${d}d ${h}h ${m}m ${s}s`;
-      }
-      render();
-      clearInterval(window.__countdownTimer);
-      window.__countdownTimer = setInterval(render, 1000);
-      // set button
-      document.getElementById('setCountdownBtn').onclick = ()=>{
-        const current = new Date(localStorage.getItem('couponBook.countdownTarget')||target);
-        const input = prompt('Enter your next special day (YYYY-MM-DD or YYYY-MM-DD HH:MM)', current.toISOString().slice(0,16).replace('T',' '));
-        if(!input) return;
-        const parsed = new Date(input.replace(' ', 'T'));
-        if(isNaN(parsed)) { toast('Could not read that date 😅'); return; }
-        localStorage.setItem('couponBook.countdownTarget', parsed.toISOString());
-        targetTime = parsed.getTime(); render(); toast('Countdown updated ✨');
-      }
-    }
-
-    // --- Secret extra coupon unlock ---
-    function unlockSecretCoupon(showToast=true){
-      if(document.querySelector('.coupon[data-id="secret"]')) return;
-      const c = document.createElement('div');
-      c.className = 'coupon';
-      c.setAttribute('data-id','secret');
-      c.textContent = '🧸 Secret extra: One wish of your choice (within reason 😘)';
-      document.querySelector('main.wrap')?.appendChild(c) || document.getElementById('content').appendChild(c);
-      attachSparklesToCoupon(c);
-      localStorage.setItem('couponBook.secretUnlocked','true');
-      if(showToast) toast('Secret coupon unlocked! 💖');
-      launchConfetti(1800);
-    }
-    document.getElementById('secretHeart').addEventListener('click', unlockSecretCoupon);
-
-    // --- Tiny toast helper ---
-    function toast(msg){
-      const t = document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
-      setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 1800);
-    }
-
-    // Cover open → reveal content + start music + stop constant balloons + confetti burst
+    // Cover open → reveal content + start music
     document.getElementById('openBtn').addEventListener('click', ()=>{
       document.getElementById('cover').classList.add('fade-out');
       setTimeout(()=>{
@@ -464,9 +255,7 @@
         document.getElementById('content').style.display='block';
         window.scrollTo({top:0, behavior:'smooth'});
       }, 600);
-      if(balloonTimer){ clearInterval(balloonTimer); balloonTimer = null; }
       playMusic();
-      launchConfetti();
     });
 
     document.getElementById('musicBtn').addEventListener('click', playMusic);
@@ -474,6 +263,31 @@
 
     // init
     loadState();
+
+    // Countdown fixed to 24 Nov 2025 00:00 (local time)
+    (function setupCountdown(){
+      const targetDate = new Date('2025-11-24T00:00:00').getTime();
+      const ids = ['countdown','coverCountdown'];
+      function update(){
+        const now = Date.now();
+        const diff = targetDate - now;
+        let text;
+        if(diff <= 0){ text = "🎉 It's the big day! 🎉"; }
+        else {
+          const d = Math.floor(diff/(1000*60*60*24));
+          const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+          const m = Math.floor((diff%(1000*60*60))/(1000*60));
+          const s = Math.floor((diff%(1000*60))/1000);
+          text = `Countdown: ${d}d ${h}h ${m}m ${s}s`;
+        }
+        ids.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.textContent = text;
+        });
+      }
+      update();
+      setInterval(update,1000);
+    })();
   </script>
 </body>
 </html>
